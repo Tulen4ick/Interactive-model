@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CameraController : MonoBehaviour
 {
@@ -42,57 +43,76 @@ public class CameraController : MonoBehaviour
             highlight.gameObject.GetComponent<Outline>().enabled = false;
             highlight = null;
         }
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hitinfo))
+        if (EventSystem.current.IsPointerOverGameObject() == false)
         {
-            highlight = hitinfo.transform;
-            if (hitinfo.transform.tag == "Selectable" && highlight != target)
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hitinfo))
             {
-                if (highlight.gameObject.GetComponent<Outline>() != null)
+                highlight = hitinfo.transform;
+                if (hitinfo.transform.tag == "Selectable" && highlight != target)
                 {
-                    highlight.gameObject.GetComponent<Outline>().enabled = true;
+                    if (highlight.gameObject.GetComponent<Outline>() != null)
+                    {
+                        highlight.gameObject.GetComponent<Outline>().enabled = true;
+                    }
+                    else
+                    {
+                        Outline outline = highlight.gameObject.AddComponent<Outline>();
+                        outline.enabled = true;
+                        outline.OutlineColor = Color.blue;
+                        highlight.gameObject.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineAll;
+                        outline.OutlineWidth = 7f;
+                    }
                 }
                 else
                 {
-                    Outline outline = highlight.gameObject.AddComponent<Outline>();
-                    outline.enabled = true;
-                    outline.OutlineColor = Color.blue;
-                    highlight.gameObject.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineAll;
-                    outline.OutlineWidth = 7f;
+                    highlight = null;
                 }
             }
-            else
-            {
-                highlight = null;
-            }
         }
-        
     }
 
     private void HandleSelection()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hitinfo))
+            if (EventSystem.current.IsPointerOverGameObject() == false)
             {
-                if(hitinfo.transform.tag == "Selectable" && hitinfo.transform != target)
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out RaycastHit hitinfo))
                 {
-                    hitinfo.transform.gameObject.GetComponent<Outline>().enabled = true;
-                    focusPoint = hitinfo.transform.position;
-                    Vector3 toCamera = transform.position - focusPoint;
-                    if (target != null)
+                    if (hitinfo.transform.tag == "Selectable" && hitinfo.transform != target)
                     {
-                        target.gameObject.GetComponent<Outline>().enabled = false;
-                    }else
-                    {
-                        currentDistance = toCamera.magnitude / 2;
+                        hitinfo.transform.gameObject.GetComponent<Outline>().enabled = true;
+                        focusPoint = hitinfo.transform.position;
+                        Vector3 toCamera = transform.position - focusPoint;
+                        if (target != null)
+                        {
+                            target.gameObject.GetComponent<Outline>().enabled = false;
+                        }
+                        else
+                        {
+                            currentDistance = toCamera.magnitude / 2;
+                        }
+                        target = hitinfo.transform;
+                        highlight = null;
+                        currentVerticalAngle = Vector3.Angle(Vector3.up, toCamera) - 90f;
+                        currentHorizontalAngle = transform.eulerAngles.y;
                     }
-                    target = hitinfo.transform;
-                    highlight = null;
-                    currentVerticalAngle = Vector3.Angle(Vector3.up, toCamera) - 90f;
-                    currentHorizontalAngle = transform.eulerAngles.y;
-                }else if(hitinfo.transform.tag != "Selectable")
+                    else if (hitinfo.transform.tag != "Selectable")
+                    {
+                        /*currentDistance = 1;
+                        focusPoint = transform.position;*/
+                        if (target)
+                        {
+                            target.gameObject.GetComponent<Outline>().enabled = false;
+                            focusPoint = Vector3.zero;
+                            currentDistance *= 2;
+                            target = null;
+                        }
+                    }
+                }
+                else
                 {
                     /*currentDistance = 1;
                     focusPoint = transform.position;*/
@@ -103,20 +123,8 @@ public class CameraController : MonoBehaviour
                         currentDistance *= 2;
                         target = null;
                     }
+
                 }
-            }
-            else
-            {
-                /*currentDistance = 1;
-                focusPoint = transform.position;*/
-                if (target)
-                {
-                    target.gameObject.GetComponent<Outline>().enabled = false;
-                    focusPoint = Vector3.zero;
-                    currentDistance *= 2;
-                    target = null;
-                }
-                
             }
         }
     }
