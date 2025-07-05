@@ -5,7 +5,7 @@ using UnityEngine;
 public class MaterialInstancer : MonoBehaviour
 {
     [SerializeField] private Material[] sourceMaterials;
-    [SerializeField] private string alphaProperty = "_BaseColor";
+    [SerializeField] private string alphaProperty = "_Color";
 
     private Material[] instanceMaterials;
     private Renderer objectRenderer;
