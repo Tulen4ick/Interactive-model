@@ -39,6 +39,15 @@ public class SelectionManager : MonoBehaviour
                     }
                 }
             }
+            var switchColorsButton = controlPanel.Find("ChangeColor");
+            if (switchColorsButton != null)
+            {
+                var switchColorsScript = switchColorsButton.GetComponent<SwitchMaterialController>();
+                if (switchColorsScript != null)
+                {
+                    switchColorsScript.Initialize(this);
+                }
+            }
         }
         PopulateScrollView();
     }

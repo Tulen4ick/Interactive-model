@@ -57,24 +57,4 @@ public class ControlPanelController : MonoBehaviour
         }
         selectionManager.OnOffAllViewInScroll(AllView);
     }
-
-    public void TransparencyClick(int alpha, Transform transparentSection, Transform currentButton)
-    {
-        foreach (Transform child in transparentSection)
-        {
-            if (child.GetComponent<UnityEngine.UI.Outline>() != null)
-            {
-                child.GetComponent<UnityEngine.UI.Outline>().enabled = false;
-            }
-        }
-        if (currentButton.GetComponent<UnityEngine.UI.Outline>() != null)
-        {
-            currentButton.GetComponent<UnityEngine.UI.Outline>().enabled = true;
-        }
-        foreach (GameObject obj in selectionManager.selectedObjects)
-        {
-            Material material = obj.GetComponent<Renderer>().material;
-            material.SetColor("_Color", new Color(material.color.r, material.color.g, material.color.b, alpha));
-        }
-    }
 }

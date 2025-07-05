@@ -25,14 +25,20 @@ public class TransparencyController : MonoBehaviour
                 child.GetComponent<UnityEngine.UI.Outline>().enabled = false;
             }
         }
-        if (currentButton.GetComponent<UnityEngine.UI.Outline>() != null)
+        if (selectionManager.selectedObjects.Count > 0)
         {
-            currentButton.GetComponent<UnityEngine.UI.Outline>().enabled = true;
-        }
-        foreach (GameObject obj in selectionManager.selectedObjects)
-        {
-            Material material = obj.GetComponent<Renderer>().material;
-            material.SetColor("Color", new Color(material.color.r, material.color.g, material.color.b, alpha));
+            if (currentButton.GetComponent<UnityEngine.UI.Outline>() != null)
+            {
+                currentButton.GetComponent<UnityEngine.UI.Outline>().enabled = true;
+            }
+            foreach (GameObject obj in selectionManager.selectedObjects)
+            {
+                MaterialInstancer materialInstancer = obj.GetComponent<MaterialInstancer>();
+                if (materialInstancer != null)
+                {
+                    materialInstancer.SetAlpha(alpha);
+                }
+            }
         }
     }
 }
