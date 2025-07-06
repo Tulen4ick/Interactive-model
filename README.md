@@ -4,6 +4,7 @@
 
 ## Как это работает в действии
 
+![gameplay_best](https://github.com/user-attachments/assets/dab8cb95-e877-4488-8fce-bc9ad96fe57a)
 
 
 ## Ключевые возможности
