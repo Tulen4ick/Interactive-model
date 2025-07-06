@@ -65,6 +65,7 @@
     - **СКМ + вертикальное движение**: Перемещение вверх/вниз
 2. **Взаимодействие с объектами в UI**
     - **Кнопка Select**: Выделить/снять выделение ![select_inactive](Assets/Sprites/checkbox_inactive.png)  ![select_active](Assets/Sprites/checkbox_active.png)
+    <img src="Assets/Sprites/checkbox_inactive.png" alt="drawing" width="200" height="200"/>
     - **Кнопка Visibility**: Скрыть/показать объект ![visibility_inactive](Assets/Sprites/eye_inactive.png)  ![visibility_active](Assets/Sprites/Eye.png)
     - **Кнопка Change Color**
 3. **Глобальные операции в UI**
