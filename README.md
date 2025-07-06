@@ -64,13 +64,11 @@
     - **СКМ**: Зум
     - **СКМ + вертикальное движение**: Перемещение вверх/вниз
 2. **Взаимодействие с объектами в UI**
-    - **Кнопка Select**: Выделить/снять выделение ![select_inactive](Assets/Sprites/checkbox_inactive.png)  ![select_active](Assets/Sprites/checkbox_active.png)
-    <img src="Assets/Sprites/checkbox_inactive.png" alt="drawing" width="40" height="40"/>
-    - **Кнопка Visibility**: Скрыть/показать объект ![visibility_inactive](Assets/Sprites/eye_inactive.png)  ![visibility_active](Assets/Sprites/Eye.png)
-    - **Кнопка Change Color**
+    - **Кнопка Select**: Выделить/снять выделение <img src="Assets/Sprites/checkbox_inactive.png" alt="select_inactive" width="30" height="30"/> <img src="Assets/Sprites/checkbox_active.png" alt="select_active" width="30" height="30"/>
+    - **Кнопка Visibility**: Скрыть/показать объект <img src="Assets/Sprites/eye_inactive.png" alt="visibility_inactive" width="30" height="30"/> <img src="Assets/Sprites/Eye.png" alt="visibility_active" width="30" height="30"/>
 3. **Глобальные операции в UI**
-    - **Кнопки в Transparent Section**: ![transparent](Assets/Sprites/transparent_40.png)
-    - **Кнопка Change Color**: ![change color](Assets/Sprites/ChangeColor.png)
-    - **Кнопка Show/Hide All**: Управление видимостью всех объектов ![hide](Assets/Sprites/eye_for_list_inactive.png) ![show](Assets/Sprites/eye_for_list_active.png)
-    - **Кнопка Add/Delete All**: Массовое выделение ![select_inactive](Assets/Sprites/checkbox_inactive.png)  ![select_active](Assets/Sprites/checkbox_active.png)
-    - **Кнопки Save/Load**: Сохранение/загрузка через отдельный контроллер ![save](Assets/Sprites/saveIcon.png) ![load](Assets/Sprites/loadIcon.png)
+    - **Кнопки в Transparent Section**: <img src="Assets/Sprites/transparent_20.png" alt="transparent_20" width="30" height="30"/> <img src="Assets/Sprites/transparent_40.png" alt="transparent_40" width="30" height="30"/> <img src="Assets/Sprites/transparent_60.png" alt="transparent_60" width="30" height="30"/> <img src="Assets/Sprites/transparent_80.png" alt="transparent_80" width="30" height="30"/> <img src="Assets/Sprites/transparent_100.png" alt="transparent_100" width="30" height="30"/>
+    - **Кнопка Change Color**: Циклическая смена материала <img src="Assets/Sprites/ChangeColor.png" alt="change color" width="30" height="30"/>
+    - **Кнопка Show/Hide All**: Управление видимостью всех объектов <img src="Assets/Sprites/eye_for_list_inactive.png" alt="hide" width="30" height="30"/> <img src="Assets/Sprites/eye_for_list_active.png" alt="show" width="30" height="30"/>
+    - **Кнопка Add/Delete All**: Массовое выделение <img src="Assets/Sprites/checkbox_inactive.png" alt="select_inactive" width="30" height="30"/> <img src="Assets/Sprites/checkbox_active.png" alt="select_active" width="30" height="30"/>
+    - **Кнопки Save/Load**: Сохранение/загрузка через отдельный контроллер <img src="Assets/Sprites/saveIcon.png" alt="save" width="30" height="30"/> <img src="Assets/Sprites/loadIcon.png" alt="load" width="30" height="30"/>
