@@ -65,7 +65,7 @@
     - **СКМ + вертикальное движение**: Перемещение вверх/вниз
 2. **Взаимодействие с объектами в UI**
     - **Кнопка Select**: Выделить/снять выделение <img src="Assets/Sprites/checkbox_inactive.png" alt="select_inactive" width="30" height="30"/> <img src="Assets/Sprites/checkbox_active.png" alt="select_active" width="30" height="30"/>
-    - **Кнопка Visibility**: Скрыть/показать объект <img src="Assets/Sprites/eye_inactive.png" alt="visibility_inactive" width="30" height="30"/> <img src="Assets/Sprites/Eye.png" alt="visibility_active" width="30" height="30"/>
+    - **Кнопка Visibility**: Скрыть/показать объект <img src="Assets/Sprites/eye_inactive.png" alt="visibility_inactive" width="40" height="50"/> <img src="Assets/Sprites/Eye.png" alt="visibility_active" width="40" height="50"/>
 3. **Глобальные операции в UI**
     - **Кнопки в Transparent Section**: <img src="Assets/Sprites/transparent_20.png" alt="transparent_20" width="30" height="30"/> <img src="Assets/Sprites/transparent_40.png" alt="transparent_40" width="30" height="30"/> <img src="Assets/Sprites/transparent_60.png" alt="transparent_60" width="30" height="30"/> <img src="Assets/Sprites/transparent_80.png" alt="transparent_80" width="30" height="30"/> <img src="Assets/Sprites/transparent_100.png" alt="transparent_100" width="30" height="30"/>
     - **Кнопка Change Color**: Циклическая смена материала <img src="Assets/Sprites/ChangeColor.png" alt="change color" width="40" height="40"/>
