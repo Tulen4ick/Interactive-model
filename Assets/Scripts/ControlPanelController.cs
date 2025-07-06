@@ -1,60 +1,87 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Animations;
+using UnityEditor.Profiling;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ControlPanelController : MonoBehaviour
 {
+    public bool AllSelected { get; set; }
+    public bool AllView { get; set; }
+
     private SelectionManager selectionManager;
-    public bool AllSelected;
-    public bool AllView;
-    public Transform SelectAllButton;
-    public Transform ViewAllButton;
-    
+    private Button selectAllButton;
+    private Button viewAllButton;
 
     public void Initialize(SelectionManager manager)
     {
         selectionManager = manager;
         AllSelected = false;
         AllView = true;
-        SelectAllButton = transform.Find("AddDeleteAll");
-        ViewAllButton = transform.Find("ShowHideAll");
+
+        selectAllButton = transform.Find("AddDeleteAll")?.GetComponent<Button>();
+        viewAllButton = transform.Find("ShowHideAll")?.GetComponent<Button>();
+
+        if (selectAllButton != null)
+        {
+            selectAllButton.onClick.RemoveAllListeners();
+            selectAllButton.onClick.AddListener(HandleSelectAll);
+        }
+
+        if (viewAllButton != null)
+        {
+            viewAllButton.onClick.RemoveAllListeners();
+            viewAllButton.onClick.AddListener(HandleViewAll);
+        }
+
+        UpdateSelectAllButton();
+        UpdateViewAllButton();
     }
 
-    public void SelectAllButtonClick()
+    private void HandleSelectAll()
     {
         selectionManager.selectedObjects.Clear();
+        AllSelected = !AllSelected;
+
         if (AllSelected)
         {
-            AllSelected = false;
-            SelectAllButton.GetComponent<Image>().sprite = selectionManager.SelectInactive;
+            var selectableObjects = GameObject.FindGameObjectsWithTag("Selectable");
+            selectionManager.selectedObjects.AddRange(selectableObjects);
         }
-        else
-        {
-            GameObject[] selectableObjects = GameObject.FindGameObjectsWithTag("Selectable");
-            foreach (GameObject obj in selectableObjects)
-            {
-                selectionManager.selectedObjects.Add(obj);
-            }
-            AllSelected = true;
-            SelectAllButton.GetComponent<Image>().sprite = selectionManager.SelectActive;
-        }
-        selectionManager.OnOffAllObjectsInScroll(AllSelected);
+        selectionManager.SetObjectsSelectionState(AllSelected);
+        selectionManager.TransparencySectionHide();
+        UpdateSelectAllButton();
     }
 
-    public void ViewAllButtonClick()
+    private void HandleViewAll()
     {
-        GameObject[] selectableObjects = GameObject.FindGameObjectsWithTag("Selectable");
         AllView = !AllView;
-        ViewAllButton.GetComponent<Image>().sprite = AllView
-            ? selectionManager.ViewAllActive
-            : selectionManager.ViewAllInactive;
-        foreach (GameObject obj in selectableObjects)
+        selectionManager.SetObjectsVisibilityState(AllView);
+        UpdateViewAllButton();
+    }
+
+    private void UpdateSelectAllButton()
+    {
+        if (selectAllButton != null)
         {
-            obj.SetActive(AllView);
+            selectAllButton.image.sprite = AllSelected
+                ? selectionManager.SelectActive
+                : selectionManager.SelectInactive;
         }
-        selectionManager.OnOffAllViewInScroll(AllView);
+    }
+
+    private void UpdateViewAllButton()
+    {
+        if (viewAllButton != null)
+        {
+            /*viewAllButton.image.sprite = AllView
+                ? selectionManager.ViewAllActive
+                : selectionManager.ViewAllInactive;*/
+            if(AllView)
+            {
+                viewAllButton.image.sprite = selectionManager.ViewAllActive;
+            }else
+            {
+                viewAllButton.image.sprite = selectionManager.ViewAllInactive;
+            }
+        }
     }
 }

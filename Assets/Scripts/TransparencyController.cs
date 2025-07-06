@@ -18,13 +18,7 @@ public class TransparencyController : MonoBehaviour
 
     public void TransparencyClick(float alpha)
     {
-        foreach (Transform child in transparentSection)
-        {
-            if (child.GetComponent<UnityEngine.UI.Outline>() != null)
-            {
-                child.GetComponent<UnityEngine.UI.Outline>().enabled = false;
-            }
-        }
+        selectionManager.TransparencySectionHide();
         if (selectionManager.selectedObjects.Count > 0)
         {
             if (currentButton.GetComponent<UnityEngine.UI.Outline>() != null)
@@ -41,4 +35,5 @@ public class TransparencyController : MonoBehaviour
             }
         }
     }
+    
 }

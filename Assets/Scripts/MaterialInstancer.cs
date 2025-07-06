@@ -27,7 +27,7 @@ public class MaterialInstancer : MonoBehaviour
         int nextIndex = (currentMaterialIndex + 1) % instanceMaterials.Length;
         ApplyMaterial(nextIndex);
     }
-    private void ApplyMaterial(int newIndex)
+    public void ApplyMaterial(int newIndex)
     {
         float currentAlpha = objectRenderer.material.GetColor(alphaProperty).a;
 
@@ -44,5 +44,15 @@ public class MaterialInstancer : MonoBehaviour
         Color currentColor = objectRenderer.material.GetColor(alphaProperty);
         currentColor.a = Mathf.Clamp01(alphaValue);
         objectRenderer.material.SetColor(alphaProperty, currentColor);
+    }
+
+    public int GetCurrentMaterialIndex()
+    {
+        return currentMaterialIndex;
+    }
+
+    public float GetAlpha()
+    {
+        return objectRenderer.material.GetColor(alphaProperty).a;
     }
 }

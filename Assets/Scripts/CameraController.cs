@@ -7,20 +7,21 @@ using UnityEngine.EventSystems;
 public class CameraController : MonoBehaviour
 {
 
-    public float rotationSpeed = 5.0f;
-    public float zoomSpeed = 10.0f;
-    public float verticalMoveSpeed = 5.0f;
-    public float minVerticalAngle = -80.0f;
-    public float maxVerticalAngle = 80.0f;
-    public float minZoomDistance = 1.0f;
-    public float maxZoomDistance = 20.0f;
+    [SerializeField] private float rotationSpeed = 5.0f;
+    [SerializeField] private float zoomSpeed = 10.0f;
+    [SerializeField] private float verticalMoveSpeed = 5.0f;
+    [SerializeField] private float minVerticalAngle = -80.0f;
+    [SerializeField] private float maxVerticalAngle = 80.0f;
+    [SerializeField] private float minZoomDistance = 1.0f;
+    [SerializeField] private float maxZoomDistance = 20.0f;
 
-    private Transform target;
+    public Transform target;
+    public Vector3 focusPoint;
+    public float currentDistance = 10.0f;
+    public float currentVerticalAngle = 30.0f;
+    public float currentHorizontalAngle = 0.0f;
     private Transform highlight;
-    private Vector3 focusPoint;
-    private float currentDistance = 10.0f;
-    private float currentVerticalAngle = 30.0f;
-    private float currentHorizontalAngle = 0.0f;
+    
 
     void Update()
     {
@@ -51,18 +52,7 @@ public class CameraController : MonoBehaviour
                 highlight = hitinfo.transform;
                 if (hitinfo.transform.tag == "Selectable" && highlight != target)
                 {
-                    if (highlight.gameObject.GetComponent<Outline>() != null)
-                    {
-                        highlight.gameObject.GetComponent<Outline>().enabled = true;
-                    }
-                    else
-                    {
-                        Outline outline = highlight.gameObject.AddComponent<Outline>();
-                        outline.enabled = true;
-                        outline.OutlineColor = Color.blue;
-                        highlight.gameObject.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineAll;
-                        outline.OutlineWidth = 7f;
-                    }
+                    AddOutline(highlight);
                 }
                 else
                 {
@@ -72,6 +62,21 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    public void AddOutline(Transform objectTransform)
+    {
+        if (objectTransform.gameObject.GetComponent<Outline>() != null)
+        {
+            objectTransform.gameObject.GetComponent<Outline>().enabled = true;
+        }
+        else
+        {
+            Outline outline = objectTransform.gameObject.AddComponent<Outline>();
+            outline.enabled = true;
+            outline.OutlineColor = Color.blue;
+            objectTransform.gameObject.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineAll;
+            outline.OutlineWidth = 7f;
+        }
+    }
     private void HandleSelection()
     {
         if (Input.GetMouseButtonDown(0))
@@ -101,8 +106,6 @@ public class CameraController : MonoBehaviour
                     }
                     else if (hitinfo.transform.tag != "Selectable")
                     {
-                        /*currentDistance = 1;
-                        focusPoint = transform.position;*/
                         if (target)
                         {
                             target.gameObject.GetComponent<Outline>().enabled = false;
@@ -114,8 +117,6 @@ public class CameraController : MonoBehaviour
                 }
                 else
                 {
-                    /*currentDistance = 1;
-                    focusPoint = transform.position;*/
                     if (target)
                     {
                         target.gameObject.GetComponent<Outline>().enabled = false;
@@ -158,7 +159,7 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    private void UpdateCameraPosition()
+    public void UpdateCameraPosition()
     {
         Quaternion rotation = Quaternion.Euler(currentVerticalAngle, currentHorizontalAngle, 0);
         Vector3 direction = rotation * Vector3.forward;

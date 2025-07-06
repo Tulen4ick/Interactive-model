@@ -1,71 +1,74 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PrefabController : MonoBehaviour
 {
+    public GameObject targetObject { get; private set; }
 
-    public GameObject targetObject;
     private SelectionManager selectionManager;
-    private ControlPanelController panelController;
-    private Transform SelectButton;
-    private Transform ViewButton;
+    private Button selectButton;
+    private Button viewButton;
+    private UnityEngine.UI.Outline outline;
 
-    public void Initialize(GameObject obj, SelectionManager manager, ControlPanelController controller)
+    public void Initialize(GameObject obj, SelectionManager manager)
     {
         targetObject = obj;
         selectionManager = manager;
-        panelController = controller;
 
-        SelectButton = transform.Find("Select");
-        ViewButton = transform.Find("Visibility");
+        selectButton = transform.Find("Select")?.GetComponent<Button>();
+        viewButton = transform.Find("Visibility")?.GetComponent<Button>();
+        outline = GetComponentInChildren<UnityEngine.UI.Outline>();
 
-        if (SelectButton != null)
+        if (selectButton != null)
         {
-            SelectButton.GetComponent<Button>().onClick.AddListener(SelectClick);
+            selectButton.onClick.AddListener(HandleSelectClick);
         }
-        if (ViewButton != null)
+
+        if (viewButton != null)
         {
-            ViewButton.GetComponent<Button>().onClick.AddListener(ViewClick);
+            viewButton.onClick.AddListener(HandleViewClick);
+        }
+
+        MeshRenderer meshRenderer = targetObject.GetComponent<MeshRenderer>();
+        if (meshRenderer != null && !meshRenderer.enabled)
+        {
+            viewButton.image.sprite = selectionManager.ViewSingleInactive;
         }
     }
 
-    private void SelectClick()
+    private void HandleSelectClick()
     {
         selectionManager.ToggleObjectSelection(targetObject);
-        if (selectionManager.selectedObjects.Contains(targetObject))
+        bool isSelected = selectionManager.selectedObjects.Contains(targetObject);
+
+        if (selectButton != null)
         {
-            SelectButton.GetComponent<Image>().sprite = selectionManager.SelectActive;
-            if (transform.GetComponentInChildren<UnityEngine.UI.Outline>() != null)
-            {
-                transform.GetComponentInChildren<UnityEngine.UI.Outline>().enabled = true;
-            }
+            selectButton.image.sprite = isSelected
+                ? selectionManager.SelectActive
+                : selectionManager.SelectInactive;
         }
-        else
+
+        if (outline != null)
         {
-            SelectButton.GetComponent<Image>().sprite = selectionManager.SelectInactive;
-            if (transform.GetComponentInChildren<UnityEngine.UI.Outline>() != null)
-            {
-                transform.GetComponentInChildren<UnityEngine.UI.Outline>().enabled = false;
-            }
+            outline.enabled = isSelected;
         }
-        selectionManager.IsAllSelected();
+
+        selectionManager.UpdateAllSelectionState();
+        selectionManager.TransparencySectionHide();
     }
 
-    private void ViewClick()
+    private void HandleViewClick()
     {
-        if (targetObject.activeInHierarchy)
+        MeshRenderer renderer = targetObject.GetComponent<MeshRenderer>();
+        renderer.enabled = !renderer.enabled;
+
+        if (viewButton != null)
         {
-            targetObject.SetActive(false);
-            ViewButton.GetComponent<Image>().sprite = selectionManager.ViewSingleInactive;
+            viewButton.image.sprite = renderer.enabled
+                ? selectionManager.ViewSingleActive
+                : selectionManager.ViewSingleInactive;
         }
-        else
-        {
-            targetObject.SetActive(true);
-            ViewButton.GetComponent<Image>().sprite = selectionManager.ViewSingleActive;
-        }
-        selectionManager.IsAllView();
+
+        selectionManager.UpdateAllViewState();
     }
 }

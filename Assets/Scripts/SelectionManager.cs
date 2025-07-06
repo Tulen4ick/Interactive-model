@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -6,50 +5,64 @@ using UnityEngine.UI;
 
 public class SelectionManager : MonoBehaviour
 {
+    [Header("Selection Sprites")]
     public Sprite SelectActive;
     public Sprite SelectInactive;
 
+    [Header("View Sprites")]
     public Sprite ViewSingleActive;
     public Sprite ViewSingleInactive;
-
     public Sprite ViewAllActive;
     public Sprite ViewAllInactive;
 
+    [Header("UI References")]
     public RectTransform prefab;
     public ScrollRect scrollView;
     public Transform controlPanel;
 
-    public Material firstMaterial;
-    public Material secondMaterial;
 
-    public List<GameObject> selectedObjects = new List<GameObject>();
-    void Start()
+    public List<GameObject> selectedObjects { get; } = new List<GameObject>();
+    private ControlPanelController panelController;
+    private Transform transparentSection;
+
+    private void Start()
     {
-        if (controlPanel != null && controlPanel.GetComponent<ControlPanelController>() != null)
+        Initialized();
+    }
+
+    public void Initialized()
+    {
+        if (controlPanel != null)
         {
-            controlPanel.GetComponent<ControlPanelController>().Initialize(this);
-            var transparentSection = controlPanel.Find("TransparentSection");
-            if (transparentSection!= null)
-            {
-                foreach (Transform child in transparentSection)
-                {
-                    if (child.GetComponentInChildren<TransparencyController>() != null)
-                    {
-                        child.GetComponentInChildren<TransparencyController>().Initialize(this, transparentSection, child);
-                    }
-                }
-            }
-            var switchColorsButton = controlPanel.Find("ChangeColor");
-            if (switchColorsButton != null)
-            {
-                var switchColorsScript = switchColorsButton.GetComponent<SwitchMaterialController>();
-                if (switchColorsScript != null)
-                {
-                    switchColorsScript.Initialize(this);
-                }
-            }
+            panelController = controlPanel.GetComponent<ControlPanelController>();
+            panelController?.Initialize(this);
+
+            InitializeTransparencySection();
+            InitializeMaterialSwitcher();
         }
+
         PopulateScrollView();
+        UpdateAllViewState();
+        TransparencySectionHide();
+    }
+
+    private void InitializeTransparencySection()
+    {
+        transparentSection = controlPanel.Find("TransparentSection");
+        if (transparentSection == null) return;
+
+        foreach (Transform child in transparentSection)
+        {
+            var controller = child.GetComponentInChildren<TransparencyController>();
+            controller?.Initialize(this, transparentSection, child);
+        }
+    }
+
+    private void InitializeMaterialSwitcher()
+    {
+        var switchColorsButton = controlPanel.Find("ChangeColor");
+        var switchColorsScript = switchColorsButton?.GetComponent<SwitchMaterialController>();
+        switchColorsScript?.Initialize(this);
     }
 
     private void PopulateScrollView()
@@ -59,10 +72,8 @@ public class SelectionManager : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        GameObject[] selectableObjects = GameObject.FindGameObjectsWithTag("Selectable");
-        foreach (GameObject obj in selectableObjects)
+        foreach (var obj in GameObject.FindGameObjectsWithTag("Selectable"))
         {
-
             if (!string.IsNullOrEmpty(obj.name))
             {
                 CreateListItem(obj);
@@ -70,17 +81,17 @@ public class SelectionManager : MonoBehaviour
         }
     }
 
-    void CreateListItem(GameObject obj)
+    private void CreateListItem(GameObject obj)
     {
-        var instance = GameObject.Instantiate(prefab.gameObject) as GameObject;
-        instance.transform.SetParent(scrollView.content.transform, false);
-        PrefabController prefabConntroller = instance.GetComponent<PrefabController>();
-        if (prefabConntroller != null )
+        var instance = Instantiate(prefab.gameObject, scrollView.content.transform, false);
+        var controller = instance.GetComponent<PrefabController>();
+        controller?.Initialize(obj, this);
+
+        var textComponent = instance.transform.Find("ObjectName")?.GetComponent<TextMeshProUGUI>();
+        if (textComponent != null)
         {
-            prefabConntroller.Initialize(obj, this, controlPanel.GetComponent<ControlPanelController>());
+            textComponent.text = obj.name;
         }
-        TextMeshProUGUI textComponent = instance.transform.Find("ObjectName").GetComponent<TextMeshProUGUI>();
-        textComponent.text = obj.name;
     }
 
     public void ToggleObjectSelection(GameObject obj)
@@ -95,100 +106,109 @@ public class SelectionManager : MonoBehaviour
         }
     }
 
-    public void OnOffAllObjectsInScroll(bool AllSelected)
+    public void UpdateAllSelectionState()
     {
-        foreach (Transform child in scrollView.content)
-        {
-            Transform SelectButton = child.Find("Select");
-            if (AllSelected)
-            {
-                SelectButton.GetComponent<Image>().sprite = SelectActive;
-                if (child.GetComponentInChildren<UnityEngine.UI.Outline>() != null)
-                {
-                    child.GetComponentInChildren<UnityEngine.UI.Outline>().enabled = true;
-                }
-            }
-            else
-            {
-                SelectButton.GetComponent<Image>().sprite = SelectInactive;
-                if (child.GetComponentInChildren<UnityEngine.UI.Outline>() != null)
-                {
-                    child.GetComponentInChildren<UnityEngine.UI.Outline>().enabled = false;
-                }
-            }
-        }
+        bool allSelected = IsAllSelected();
+        panelController.AllSelected = allSelected;
+        UpdateSelectionUI(allSelected);
     }
 
-    public void OnOffAllViewInScroll(bool AllView)
+    public void UpdateAllViewState()
     {
-        foreach (Transform child in scrollView.content)
-        {
-            PrefabController prefabController = child.GetComponent<PrefabController>();
-            Transform ViewButton = child.Find("Visibility");
-            if (prefabController != null && ViewButton.GetComponent<Image>() != null)
-            {
-                if (AllView)
-                {
-                    prefabController.targetObject.SetActive(true);
-                    ViewButton.GetComponent<Image>().sprite = ViewSingleActive;
-                }
-                else
-                {
-                    prefabController.targetObject.SetActive(false);
-                    ViewButton.GetComponent<Image>().sprite = ViewSingleInactive;
-                }
-            }
-        }
+        bool allVisible = IsAllView();
+        panelController.AllView = allVisible;
+        UpdateVisibilityUI(allVisible);
     }
 
-    public bool IsAllSelected()
+    private bool IsAllSelected()
     {
-        GameObject[] selectableObjects = GameObject.FindGameObjectsWithTag("Selectable");
-        Transform SelectAllButton = controlPanel.Find("AddDeleteAll");
-        foreach (GameObject obj in selectableObjects)
+        var selectableObjects = GameObject.FindGameObjectsWithTag("Selectable");
+        foreach (var obj in selectableObjects)
         {
-            if (!selectedObjects.Contains(obj))
+            if (!selectedObjects.Contains(obj)) return false;
+        }
+        return true;
+    }
+
+    private bool IsAllView()
+    {
+        foreach (Transform item in scrollView.content)
+        {
+            var controller = item.GetComponent<PrefabController>();
+            MeshRenderer renderer = controller.targetObject.GetComponent<MeshRenderer>();
+            if (controller != null && !renderer.enabled)
             {
-                if (controlPanel.GetComponent<ControlPanelController>() != null)
-                {
-                    controlPanel.GetComponent<ControlPanelController>().AllSelected = false;
-                }
-                SelectAllButton.GetComponent<Image>().sprite = SelectInactive;
                 return false;
             }
         }
-        if (controlPanel.GetComponent<ControlPanelController>() != null)
-        {
-            controlPanel.GetComponent<ControlPanelController>().AllSelected = true;
-        }
-        SelectAllButton.GetComponent<Image>().sprite = SelectActive;
         return true;
     }
 
-    public bool IsAllView()
+    private void UpdateSelectionUI(bool allSelected)
     {
-        Transform ViewAllButton = controlPanel.Find("ShowHideAll");
-        foreach (Transform obj in scrollView.content)
+        var selectAllButton = controlPanel.Find("AddDeleteAll")?.GetComponent<Image>();
+        if (selectAllButton != null)
         {
-            if (obj.GetComponent<PrefabController>() != null)
+            selectAllButton.sprite = allSelected ? SelectActive : SelectInactive;
+        }
+    }
+
+    private void UpdateVisibilityUI(bool allVisible)
+    {
+        var viewAllButton = controlPanel.Find("ShowHideAll")?.GetComponent<Image>();
+        if (viewAllButton != null)
+        {
+            viewAllButton.sprite = allVisible ? ViewAllActive : ViewAllInactive;
+        }
+    }
+
+    public void SetObjectsSelectionState(bool selected)
+    {
+        foreach (Transform child in scrollView.content)
+        {
+            var selectButton = child.Find("Select")?.GetComponent<Image>();
+            var outline = child.GetComponentInChildren<UnityEngine.UI.Outline>();
+
+            if (selectButton != null)
             {
-                if (!obj.GetComponent<PrefabController>().targetObject.activeInHierarchy)
-                {
-                    if (controlPanel.GetComponent<ControlPanelController>() != null)
-                    {
-                        controlPanel.GetComponent<ControlPanelController>().AllView = false;
-                    }
-                    ViewAllButton.GetComponent<Image>().sprite = ViewAllInactive;
-                    return false;
-                }
+                selectButton.sprite = selected ? SelectActive : SelectInactive;
+            }
+
+            if (outline != null)
+            {
+                outline.enabled = selected;
             }
         }
-        if (controlPanel.GetComponent<ControlPanelController>() != null)
-        {
-            controlPanel.GetComponent<ControlPanelController>().AllView = true;
-        }
-        ViewAllButton.GetComponent<Image>().sprite = ViewAllActive;
-        return true;
     }
 
+    public void SetObjectsVisibilityState(bool visible)
+    {
+        foreach (Transform child in scrollView.content)
+        {
+            var controller = child.GetComponent<PrefabController>();
+            var viewButton = child.Find("Visibility")?.GetComponent<Image>();
+
+            if (controller != null)
+            {
+                MeshRenderer renderer = controller.targetObject.GetComponent<MeshRenderer>();
+                renderer.enabled = visible;
+            }
+
+            if (viewButton != null)
+            {
+                viewButton.sprite = visible ? ViewSingleActive : ViewSingleInactive;
+            }
+        }
+    }
+
+    public void TransparencySectionHide()
+    {
+        foreach (Transform child in transparentSection)
+        {
+            if (child.GetComponent<UnityEngine.UI.Outline>() != null)
+            {
+                child.GetComponent<UnityEngine.UI.Outline>().enabled = false;
+            }
+        }
+    }
 }
